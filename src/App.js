@@ -8,15 +8,35 @@ function App() {
   const [tasks, setTasks] = useState([])
   const [editMode, setEditMode] = useState(false)
   const [id, setId] = useState("")
+  const [error, setError] = useState(null)
   
+  const validForm = () => {
+
+    let isValid = true;
+    
+    setError(null)
+
+      if(isEmpty(task))
+      {
+        setError("Debes ingresar una tarea.")
+        console.log("Debes ingresar una tarea.")
+        console.log(isValid);
+        isValid = false
+      }
+
+      console.log(isValid);
+
+      return isValid
+  }
 
   const addTask = (e) => {
      e.preventDefault()
-     if(isEmpty(task))
-     {
-        console.log("Tarea vacia");
-        return
-     }
+
+    if(!validForm())
+    {
+      return 
+    }
+
 
      const newTask = {
        id: shortid.generate(),
@@ -41,13 +61,13 @@ function App() {
 
   const saveTask = (e) => {
     e.preventDefault()
-    if(isEmpty(task))
+
+    if(!validForm())
     {
-       console.log("Tarea vacia");
-       return
+      return 
     }
     
-    const editedTasks = tasks.map(item => item.id == id ? {id, name: task} : item)
+    const editedTasks = tasks.map(item => item.id === id ? {id, name: task} : item)
     setTasks(editedTasks)
     setEditMode(false)
     setTask("")
@@ -63,8 +83,8 @@ function App() {
             <div className="col-8">
               <h4 className="text-center">Lista de tareas</h4>
               {           
-                  (size(tasks) == 0) ? (
-                  <h5 className="text-center">No existen tareas programadas.</h5>
+                  (size(tasks) === 0) ? (
+                  <li className="list-group-item">No existen tareas programadas.</li>
                   ) : (
                     <ul className="list-group">
                   {
@@ -91,11 +111,15 @@ function App() {
             <div className="col-4">
               <h4 className="text-center">{editMode ? "Modificar Tarea" : "Agregar Tarea"}</h4>
               <form onSubmit={editMode ? saveTask : addTask}>
+                {
+                    error && <span className="text-danger">{error}</span>
+                }
                 <input type="text" 
                   className="form-control mb-2" 
                   placeholder="Ingrese la tarea" 
                   onChange={(text => setTask(text.target.value))}
                   value ={task} />
+               
                 <button 
                   className={editMode ? "btn btn-warning btn-block" : "btn btn-dark btn-block"  }
                   type="submit">
